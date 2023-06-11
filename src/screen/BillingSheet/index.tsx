@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {Platform, ScrollView, StyleSheet, View} from 'react-native';
 import {CardPatient, Gap, Header, Input} from '../../components';
 import {useInfinityBillingSheet} from '../../hooks';
@@ -6,9 +6,7 @@ import {BillingSheetProps, COLORS, FONTS, METRICS} from '../../utils';
 
 const BillingSheet = ({navigation}: BillingSheetProps) => {
   const {handleScroll, data, search, setSearch} = useInfinityBillingSheet();
-
-  console.log('data', data)
-
+  
   return (
     <>
       {Platform.OS === 'ios' && (

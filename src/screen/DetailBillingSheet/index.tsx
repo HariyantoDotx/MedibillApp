@@ -1,22 +1,124 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Platform, ScrollView, StyleSheet, View} from 'react-native';
-import {Button, Gap, Header, ListWithLabelAndLine} from '../../components';
-import DateOfServiceAndItemNumber from '../../components/moleculs/DateOfServiceAndItemNumber';
-import {useAppDispatch, useGetDetailBillingSheetQuery} from '../../store';
-import {COLORS, DetaiBillingSheetProps, METRICS, formatDate} from '../../utils';
-import {useLoadingHandler} from '../../hooks';
 import RNFetchBlob from 'rn-fetch-blob';
+import {Button, Gap, Header, Input, TimeService} from '../../components';
+import {useLoadingHandler} from '../../hooks';
+import useErrorHandler from '../../hooks/useErrorHandler';
+import {
+  useAppDispatch,
+  useGetDetailBillingSheetQuery,
+  useUpdateBillingMutation,
+} from '../../store';
 import {setAllert} from '../../store/reducer/allert';
+import {
+  COLORS,
+  DetaiBillingSheetProps,
+  METRICS,
+  TImeService,
+  UploadBillingForm,
+  ddmmyyyyToyyyymmdd,
+  yyyymmddToddmmyyyy,
+} from '../../utils';
 
 const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
   const {id} = route.params;
-
   const dispatch = useAppDispatch();
+  const {
+    data: res,
+    isSuccess,
+    isLoading,
+    isError,
+    error,
+  } = useGetDetailBillingSheetQuery({id});
+  const [
+    mutate,
+    {
+      isSuccess: isUpdateSuccess,
+      isError: isUpdateError,
+      error: updateError,
+      isLoading: isUpdateLoading,
+    },
+  ] = useUpdateBillingMutation();
+  useLoadingHandler({isLoading: isLoading || isUpdateLoading});
+  useErrorHandler({
+    isError: isError || isUpdateError,
+    error: error || updateError,
+  });
 
-  const {data: res, isLoading} = useGetDetailBillingSheetQuery({id});
-  useLoadingHandler({isLoading});
+  const [name, setName] = useState('');
+  const [referral_date, setReferral_date] = useState('');
+  const [dob, setDob] = useState('');
+  const [referring_doctor, setReferring_doctor] = useState('');
+  const [address, setAddress] = useState('');
+  const [provider_number, setProvider_number] = useState('');
+  const [referral_period, setReferral_period] = useState('');
+  const [medicare_no, setMedicare_no] = useState('');
+  const [health_fund_no, setHealth_fund_no] = useState('');
+  const [insurer_no, setInsurer_no] = useState('');
+
+  const [dateServices, setDateServices] = useState<TImeService[]>([
+    {
+      id: 9999,
+      date_of_service: 'Date Service',
+      time_of_service: 'Time',
+      item_number: '',
+    },
+  ]);
 
   const data = useMemo(() => res?.data, [res]);
+
+  const form: UploadBillingForm = {
+    name,
+    referral_date: ddmmyyyyToyyyymmdd(referral_date),
+    dob: ddmmyyyyToyyyymmdd(dob),
+    referring_doctor,
+    address,
+    provider_number,
+    referral_period,
+    medicare_no,
+    health_fund_no,
+    insurer_no,
+  };
+
+  useEffect(() => {
+    if (isSuccess && data) {
+      const {patient_name, referral_date, details} = data.patient_referral;
+      const {
+        dob,
+        referring_doctor,
+        address,
+        provider_number,
+        medicare_no,
+        referral_period,
+        health_fund_no,
+        insurer_no,
+      } = details;
+      setName(patient_name || '');
+      setReferral_date(yyyymmddToddmmyyyy(referral_date || ''));
+      setDob(yyyymmddToddmmyyyy(dob || ''));
+      setReferring_doctor(referring_doctor || '');
+      setAddress(address || '');
+      setProvider_number(provider_number || '');
+      setReferral_period(referral_period.toString());
+      setMedicare_no(medicare_no || '');
+      setHealth_fund_no(health_fund_no || '');
+      setInsurer_no(insurer_no || '');
+      setDateServices(data.details as TImeService[]);
+    }
+  }, [isSuccess, data]);
+
+  useEffect(() => {
+    if (isUpdateSuccess) {
+      dispatch(
+        setAllert({
+          message: 'Update billing success',
+          visible: true,
+          type: 'success',
+        }),
+      );
+      navigation.goBack();
+    }
+  }, [isUpdateSuccess]);
 
   const downloadFile = useCallback(() => {
     if (data === undefined) {
@@ -55,7 +157,7 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
     }
   }, [data]);
 
-  console.log('data?.file.url', data?.file.url)
+  console.log('data?.file.url', data?.file.url);
 
   const handleShow = useCallback(() => {
     if (data?.file.url === undefined) {
@@ -70,6 +172,61 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
       navigation.navigate('ShowBilling', data?.file);
     }
   }, [data]);
+
+  const addNewItem = useCallback(() => {
+    const newData = {
+      id: Date.now(),
+      date_of_service: 'Date Service',
+      time_of_service: 'Time',
+      item_number: '',
+    };
+    setDateServices([...dateServices, newData]);
+  }, [dateServices, setDateServices]);
+
+  const onTimeServiceChange = useCallback(
+    (val: TImeService) => {
+      const index = dateServices.findIndex(e => e.id === val.id);
+
+      let newArray = [...dateServices];
+      newArray[index] = {
+        ...newArray[index],
+        date_of_service: val.date_of_service,
+        time_of_service: val.time_of_service,
+        item_number: val.item_number,
+      };
+
+      setDateServices(newArray);
+    },
+    [dateServices, setDateServices],
+  );
+
+  const onDeletePress = useCallback(
+    (id: number) => {
+      const index = dateServices.findIndex(dt => dt.id === id);
+      if (index > -1) {
+        const newData = dateServices.splice(index, 1);
+        setDateServices(newData);
+      }
+    },
+    [dateServices, setDateServices],
+  );
+
+  const handleUpdate = useCallback(() => {
+    let newdateServices = [...dateServices];
+    dateServices.map((dt, i) => {
+      if (dt.time_of_service === 'Time') {
+        newdateServices[i] = {
+          ...newdateServices[i],
+          time_of_service: '',
+        };
+      }
+      if (dt.date_of_service === 'Date Service' && dt.item_number === '') {
+        newdateServices.splice(i, 1);
+      }
+    });
+    if (data?.id)
+      mutate({id: data?.id, payload: {patient: form, data: newdateServices}});
+  }, [form, dateServices]);
 
   return (
     <>
@@ -87,49 +244,73 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
       <View style={styles.page}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Gap height={8} />
-          <ListWithLabelAndLine
-            label="Patient Name"
-            name={data?.patient_referral.details?.name || ''}
-          />
-          <ListWithLabelAndLine
+          <Input value={name} onChangeText={setName} label="Patient Name" />
+          <Gap height={12} />
+          <Input
+            withDate
+            value={referral_date}
+            onChangeText={setReferral_date}
             label="Referal Date"
-            name={data?.patient_referral.details?.referral_date || ''}
           />
-          <ListWithLabelAndLine
-            label="DOB"
-            name={formatDate(data?.patient_referral.details?.dob || '')}
-          />
-          <ListWithLabelAndLine
+          <Gap height={12} />
+          <Input withDate value={dob} onChangeText={setDob} label="DOB" />
+          <Gap height={12} />
+          <Input
+            value={referring_doctor}
+            onChangeText={setReferring_doctor}
             label="Referring Doctor"
-            name={data?.patient_referral.details?.referring_doctor || ''}
           />
-          <ListWithLabelAndLine
-            label="Address"
-            name={data?.patient_referral.details?.address || ''}
-          />
-          <ListWithLabelAndLine
+          <Gap height={12} />
+          <Input value={address} onChangeText={setAddress} label="Address" />
+          <Gap height={12} />
+          <Input
+            value={provider_number}
+            onChangeText={setProvider_number}
             label="Provider Number"
-            name={data?.patient_referral.details?.provider_number || ''}
           />
-          <ListWithLabelAndLine
+          <Gap height={12} />
+          <Input
+            value={medicare_no}
+            onChangeText={setMedicare_no}
             label="Medicare No"
-            name={data?.patient_referral.details?.medicare_no || ''}
           />
-          <ListWithLabelAndLine
+          <Gap height={12} />
+          <Input
+            value={referral_period}
+            onChangeText={setReferral_period}
             label="Referral Period (months)"
-            name={data?.patient_referral.details?.referral_period || ''}
           />
-          <ListWithLabelAndLine
-            label="Health Fund & membership no:"
-            name={data?.patient_referral.details?.health_fund_no || ''}
+          <Gap height={12} />
+          <Input
+            value={health_fund_no}
+            onChangeText={setHealth_fund_no}
+            label="Health Fund & membership no"
           />
-          <ListWithLabelAndLine
-            label="WC/Insurer & no:"
-            name={data?.patient_referral.details?.insurer_no || ''}
+          <Gap height={12} />
+          <Input
+            value={insurer_no}
+            onChangeText={setInsurer_no}
+            label="WC/Insurer & no"
           />
-          {data?.details?.map((dt, i) => {
-            return <DateOfServiceAndItemNumber data={dt} key={i} />;
-          })}
+          <Gap height={24} />
+          {dateServices.map(dateService => (
+            <View key={dateService.id ?? dateService.item_number}>
+              <TimeService
+                data={dateService}
+                onDeletePress={() => onDeletePress(dateService.id)}
+                value={val => onTimeServiceChange(val)}
+              />
+              <Gap height={METRICS.gutter.s} />
+            </View>
+          ))}
+          <Gap height={24} />
+          <Button title="Add New Item" onPress={addNewItem} />
+          <Gap height={12} />
+          <Button
+            title="Update billing Sheet"
+            type="blue"
+            onPress={handleUpdate}
+          />
         </ScrollView>
       </View>
       <Gap height={4} />

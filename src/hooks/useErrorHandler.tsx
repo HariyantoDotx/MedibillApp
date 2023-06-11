@@ -1,5 +1,5 @@
 import {View, Text} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {useAppDispatch} from '../store';
 import {setAllert} from '../store/reducer/allert';
 
@@ -22,7 +22,17 @@ const useErrorHandler = ({isError, error}: UseErrorhandler) => {
     }
   }, [isError, error]);
 
-  return true;
+  const handleLoading = useCallback((err: any) => {
+    dispatch(
+      setAllert({
+        type: 'error',
+        message: err?.message || 'something when wrong',
+        visible: true,
+      }),
+    );
+  }, []);
+
+  return {handleLoading};
 };
 
 export default useErrorHandler;

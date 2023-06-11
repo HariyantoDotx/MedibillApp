@@ -2,6 +2,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {NativeScrollEvent, NativeSyntheticEvent} from 'react-native';
 import {useLazyGetBillingSheetQuery} from '../store';
 import {BillingData} from '../utils';
+import useLoadingHandler from './useLoadingHandler';
 
 const useInfinityBillingSheet = () => {
   const shouldReset = useRef(true);
@@ -10,6 +11,7 @@ const useInfinityBillingSheet = () => {
   const [allData, setAllData] = useState<Array<BillingData>>([]);
   const [loading, setLoading] = useState(false);
   const [trigger, result] = useLazyGetBillingSheetQuery();
+  useLoadingHandler({isLoading: result.isLoading});
 
   useEffect(() => {
     trigger({page: 1});

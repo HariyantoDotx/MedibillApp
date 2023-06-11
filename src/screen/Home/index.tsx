@@ -22,48 +22,46 @@ const deviceScreen = METRICS.screen.width;
 const Home = ({navigation}: HomeProps) => {
   const {access_token, token_type} = useAppSelector(state => state.users);
   const {isSuccess, data, isLoading} = useGetProfileQuery(undefined);
-  useLoadingHandler({isLoading});
+  const {handleLoading} = useLoadingHandler({isLoading});
 
   const dispatch = useAppDispatch();
-  const [menus] = useState([
-    {
-      title: 'Submitted',
-      innerText: 'Billing Sheets',
-      onPress: () => navigation.navigate('BillingSheets'),
-    },
-    {
-      innerText: 'Reports',
-      title: 'Monthly',
-      onPress: () => navigation.navigate('MonthlyReports'),
-    },
-  ]);
 
   const name = useMemo(() => {
     if (isSuccess && !!data.data) return data.data.name;
     return '';
-  }, [isSuccess, data]);
+  }, [isSuccess, data, isLoading]);
 
-  const uploadImage = useCallback((myImage: FIleResponse) => {
+  const uploadPdf = useCallback((myImage: FIleResponse) => {
     const data = new FormData();
-    data.append('image', myImage);
-    data.append('ocr', 0);
+    data.append('file', myImage);
+    data.append('handle', 'billing_sheet');
+    handleLoading(true);
     axios
-      .post(`${API.url}/api/v1/file`, data, {
+      .post(`${API.url}/api/v1/pdf`, data, {
         headers: {
           Authorization: `${token_type} ${access_token}`,
         },
       })
       .then(res => {
-        navigation.navigate('CompleteBillingSheet', {id: res.data.data.id});
+        handleLoading(false);
+        dispatch(
+          setAllert({
+            type: 'success',
+            message: 'Upload pdf success',
+            visible: true,
+          }),
+        );
       })
       .catch(err => {
+        handleLoading(false);
+        console.log('err', err);
       });
   }, []);
 
   const handleOpenFile = useCallback(async () => {
     try {
       const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.pdf, DocumentPicker.types.images],
+        type: [DocumentPicker.types.pdf],
       });
       const file = {
         uri: res[0].uri,
@@ -72,7 +70,7 @@ const Home = ({navigation}: HomeProps) => {
         size: res[0].size,
         fileCopyUri: res[0].fileCopyUri,
       };
-      uploadImage(file);
+      uploadPdf(file);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         dispatch(
@@ -100,20 +98,19 @@ const Home = ({navigation}: HomeProps) => {
               <Text style={styles.text}>{name}</Text>
             </TouchableOpacity>
           </View>
-          <Gap height={METRICS.gutter.s} backgroundColor='#F7F9FF' />
+          <Gap height={METRICS.gutter.s} backgroundColor="#F7F9FF" />
           <View>
             <View style={styles.menu}>
-              {menus.map(({title, onPress, innerText}, index) => {
-                return (
-                  <TabItem
-                    key={index}
-                    title={title}
-                    innerText={innerText}
-                    onPress={onPress}
-                    onLongPress={onPress}
-                  />
-                );
-              })}
+              <TabItem
+                title="Submitted"
+                innerText="Billing Sheets"
+                onPress={() => navigation.navigate('BillingSheets')}
+              />
+              <TabItem
+                title="Monthly"
+                innerText="Reports"
+                onPress={() => navigation.navigate('MonthlyReports')}
+              />
             </View>
             <View style={styles.menu}>
               <TabItem
@@ -158,13 +155,13 @@ const styles = StyleSheet.create({
   text: {
     fontSize: METRICS.gutter.m,
     fontFamily: FONTS.primary[600],
-    color : COLORS.black1
+    color: COLORS.black1,
   },
 
   textHello: {
     fontSize: METRICS.gutter.s + 4,
     fontFamily: FONTS.primary[300],
-    color : COLORS.black1
+    color: COLORS.black1,
   },
   textLogout: {
     color: COLORS.red1,

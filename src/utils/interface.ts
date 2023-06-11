@@ -114,44 +114,44 @@ interface DetailBillingSheetPatientInvoice {
   doctor_id: number;
   file: any[];
   file_id: number;
-  gst: null;
+  gst: null | string;
   id: number;
-  inv_date: null;
+  inv_date: null | string;
   invoice_number: string | number;
-  pat_num: null;
-  patient_name: null;
+  pat_num: null | string;
+  patient_name: null | string;
   patient_referral_id: number;
-  s: null;
-  serv_date: null;
-  status: null;
+  s: null | string;
+  serv_date: null | string;
+  status: null | string;
   updated_at: string;
 }
 
 interface DetailBillingSheetPatientReferral {
   created_at: string;
   details: {
-    address: null;
-    dob: null;
-    health_fund_no: null;
-    insurer_no: null;
-    medicare_no: null;
+    address: null | string;
+    dob: null | string;
+    health_fund_no: null | string;
+    insurer_no: null | string;
+    medicare_no: null | string;
     name: string;
-    provider_number: null;
-    referral_date: null;
-    referral_period: 12;
-    referring_doctor: null;
-    referring_doctor_id: null;
+    provider_number: null | string;
+    referral_date: null | string;
+    referral_period: number;
+    referring_doctor: null | string;
+    referring_doctor_id: null | string;
   };
   doctor_id: number;
   file_id: number;
   formatted_period: string;
   id: number;
-  patient_name: null;
+  patient_name: string | null;
   period: number;
-  provider_number: null;
-  referral_date: null;
-  referring_doctor: null;
-  referring_doctor_id: null;
+  provider_number: string | null;
+  referral_date: string | null;
+  referring_doctor: string | null;
+  referring_doctor_id: string | null;
   updated_at: string;
 }
 

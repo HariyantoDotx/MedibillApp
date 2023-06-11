@@ -1,5 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import {UploadBillingPayload} from '../../utils';
+import {UpdatebillingPayload, UploadBillingPayload} from '../../utils';
 import {
   BillingResponse,
   DetailBillingSheetResponse,
@@ -49,8 +49,17 @@ export const apiRequest = createApi({
         body: payload,
       }),
     }),
+    updateBilling: builder.mutation<any, UpdatebillingPayload>({
+      query: ({id, payload}) => ({
+        url: `/v1/billing-sheet/${id}`,
+        method: 'PUT',
+        body: payload,
+      }),
+    }),
   }),
 });
+
+
 export const {
   useGetProfileQuery,
   useLazyGetBillingSheetQuery,
@@ -58,4 +67,5 @@ export const {
   useGetPatientReferralQuery,
   useGetDetailBillingSheetQuery,
   useUploadBillingMutation,
+  useUpdateBillingMutation
 } = apiRequest;

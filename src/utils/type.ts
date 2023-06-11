@@ -1,6 +1,11 @@
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {icons} from '../assets';
-import {CompleteBillingSheetParams, DetailBillingSheetFile, DetailParams, ReportData} from './interface';
+import {
+  CompleteBillingSheetParams,
+  DetailBillingSheetFile,
+  DetailParams,
+  ReportData,
+} from './interface';
 
 export type RootStackParamList = {
   MainApp: undefined;
@@ -14,9 +19,9 @@ export type RootStackParamList = {
   BillingSheets: undefined;
   ShowBilling: DetailBillingSheetFile;
   UploadBillingSheet: undefined;
-  Home : undefined
-  ProfileDoctor: undefined
-  DetailPatientReferral : CompleteBillingSheetParams
+  Home: undefined;
+  ProfileDoctor: undefined;
+  DetailPatientReferral: CompleteBillingSheetParams;
 };
 
 export type SplashProps = {
@@ -122,7 +127,15 @@ export interface UploadBillingPayload {
   patient: UploadBillingForm;
   data: TImeService[];
   old: boolean;
-  file_id?: number
+  file_id?: number;
+}
+
+export interface UpdatebillingPayload {
+  payload: {
+    patient: UploadBillingForm;
+    data: TImeService[];
+  };
+  id: number;
 }
 
 export interface UploadFilePayload {

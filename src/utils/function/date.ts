@@ -21,7 +21,7 @@ export const dateValidate = (data: any) => {
 };
 
 export const timestampToDate = (timestamp?: number) => {
-  const newTime = timestamp || Date.now()
+  const newTime = timestamp || Date.now();
   const year = new Date(newTime).getFullYear();
   const month =
     new Date(newTime).getMonth() < 10
@@ -114,8 +114,12 @@ export const getDateFormat = (value: string) => {
   return data;
 };
 
-
-export const ddmmyyyyToyyyymmdd = (value : string) => {
+export const ddmmyyyyToyyyymmdd = (value: string) => {
   const s = value.split('/');
-  return `${s[2]}-${s[1]}-${s[0]}`
-}
+  return `${s[2]}-${s[1]}-${s[0]}`;
+};
+
+export const yyyymmddToddmmyyyy = (value: string) => {
+  const s = value.split('-');
+  return `${s[2]}/${s[1]}/${s[0]}`;
+};
