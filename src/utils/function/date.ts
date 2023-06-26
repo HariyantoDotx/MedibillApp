@@ -35,10 +35,12 @@ export const timestampToDate = (timestamp?: number) => {
   return newValue;
 };
 
-export const timestampToTime = (timestamp: any) => {
-  const hour = timestamp.getHours();
-  const minute = timestamp.getMinutes();
+export const timestampToTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const hour = date.getHours();
+  const minute = date.getMinutes();
   const newValue = `${hour}:${minute}`;
+
   return newValue;
 };
 
@@ -114,12 +116,18 @@ export const getDateFormat = (value: string) => {
   return data;
 };
 
-export const ddmmyyyyToyyyymmdd = (value: string) => {
-  const s = value.split('/');
-  return `${s[2]}-${s[1]}-${s[0]}`;
+export const ddmmyyyyToyyyymmdd = (value: string | null) => {
+  if (value !== null) {
+    const s = value.split('/');
+    return `${s[2]}-${s[1]}-${s[0]}`;
+  }
+  return null;
 };
 
-export const yyyymmddToddmmyyyy = (value: string) => {
-  const s = value.split('-');
-  return `${s[2]}/${s[1]}/${s[0]}`;
+export const yyyymmddToddmmyyyy = (value?: string | null) => {
+  if (!!value) {
+    const s = value.split('-');
+    return `${s[2]}/${s[1]}/${s[0]}`;
+  }
+  return null;
 };

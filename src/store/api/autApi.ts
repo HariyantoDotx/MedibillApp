@@ -13,7 +13,7 @@ export const authApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${API.url}/api`,
     prepareHeaders: headers => headers.set('Accept', 'application/json'),
-    timeout: 10000,
+    timeout: 60000,
   }),
   tagTypes: ['AUTH'],
   endpoints: builder => ({

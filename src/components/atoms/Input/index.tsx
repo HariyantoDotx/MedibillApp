@@ -135,7 +135,7 @@ const Input = ({
       {showDatePicker && (
         <DateTimePicker
           testID="dateTimePicker"
-          value={value ? getDateFormat(value) : new Date()}
+          value={!!value ? getDateFormat(value) : new Date()}
           mode="date"
           is24Hour={true}
           display="spinner"

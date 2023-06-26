@@ -1,11 +1,30 @@
-import { Platform, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { COLORS, METRICS, ShowBillingProps } from '../../utils'
-import { Button, Gap, Header } from '../../components'
-import Pdf from 'react-native-pdf'
+import {Image, Platform, StyleSheet, Text, View} from 'react-native';
+import React from 'react';
+import {COLORS, METRICS, ShowBillingProps} from '../../utils';
+import {Button, Gap, Header} from '../../components';
+import Pdf from 'react-native-pdf';
 
-const ShowBilling = ({navigation, route} : ShowBillingProps) => {
-  const {params} = route
+const ShowBilling = ({navigation, route}: ShowBillingProps) => {
+  const {params} = route;
+
+  if (params.type === 'image/jpeg') {
+    return (
+      <View style={{flex: 1}}>
+        {Platform.OS === 'ios' && (
+          <Gap
+            height={METRICS.gutter.l}
+            backgroundColor={COLORS.greenSecondary}
+          />
+        )}
+        <Header
+          withBack
+          onBackPress={() => navigation.goBack()}
+          title="Billing"
+        />
+        <Image source={{uri: params.url}} style={{flex: 1, margin : 32}} />
+      </View>
+    );
+  }
   return (
     <View style={{flex: 1}}>
       {Platform.OS === 'ios' && (
@@ -24,13 +43,11 @@ const ShowBilling = ({navigation, route} : ShowBillingProps) => {
         trustAllCerts={false}
         style={{flex: 1}}
       />
-      <View style={styles.buttonContainer}>
-      </View>
     </View>
-  )
-}
+  );
+};
 
-export default ShowBilling
+export default ShowBilling;
 
 const styles = StyleSheet.create({
   buttonContainer: {

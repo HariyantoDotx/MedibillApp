@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
   Image,
   Platform,
@@ -54,7 +54,6 @@ const Home = ({navigation}: HomeProps) => {
       })
       .catch(err => {
         handleLoading(false);
-        console.log('err', err);
       });
   }, []);
 
@@ -98,7 +97,7 @@ const Home = ({navigation}: HomeProps) => {
               <Text style={styles.text}>{name}</Text>
             </TouchableOpacity>
           </View>
-          <Gap height={METRICS.gutter.s} backgroundColor="#F7F9FF" />
+          <Gap height={METRICS.gutter.l} backgroundColor="#F7F9FF" />
           <View>
             <View style={styles.menu}>
               <TabItem
@@ -117,12 +116,6 @@ const Home = ({navigation}: HomeProps) => {
                 title="Upload"
                 innerText="Billing Sheets"
                 onPress={() => navigation.navigate('UploadBillingSheet')}
-                textstyle={METRICS.gutter.s}
-              />
-              <TabItem
-                title="Upload"
-                innerText="PDF"
-                onPress={handleOpenFile}
                 textstyle={METRICS.gutter.s}
               />
             </View>
@@ -147,7 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   innerPage: {
-    padding: METRICS.gutter.m,
+    paddingTop: METRICS.gutter.s,
   },
   opening: {
     alignItems: 'center',
@@ -174,13 +167,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   instructions: {
-    flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'center',
-  },
-  textInstructions: {
-    fontSize: METRICS.gutter.s,
-    maxWidth: METRICS.screen.width / 1.5,
   },
   image: {
     width: deviceScreen - 32,

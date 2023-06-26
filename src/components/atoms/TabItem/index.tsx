@@ -45,8 +45,8 @@ const TabItem = ({
       return (
         <Icons
           name="ICDocuments"
-          width={32}
-          height={34}
+          width={36}
+          height={38}
           stroke={COLORS.greenPrimary}
           strokeWidth={4}
         />
@@ -56,8 +56,8 @@ const TabItem = ({
       return (
         <Icons
           name="ICCopy"
-          width={32}
-          height={34}
+          width={36}
+          height={38}
           stroke={COLORS.greenPrimary}
           strokeWidth={4}
         />
@@ -66,7 +66,7 @@ const TabItem = ({
     if (title === 'Upload') {
       return (
         <View style={styles.plushContainer}>
-          <Icons name="ICPlus" width={22} height={22} fill={COLORS.white} />
+          <Icons name="ICPlus" width={18} height={18} fill={COLORS.white} />
         </View>
       );
     }
@@ -103,12 +103,12 @@ const styles = StyleSheet.create({
     marginTop: -1.5,
   },
   plushContainer: {
-    width: 36,
-    height: 36,
+    width: 64,
+    height: 42,
     backgroundColor: COLORS.greenPrimary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: 24,
     marginTop: 32,
     marginBottom: 8,
   },

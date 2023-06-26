@@ -17,7 +17,6 @@ import {
   METRICS,
   TImeService,
   UploadBillingForm,
-  ddmmyyyyToyyyymmdd,
 } from '../../utils';
 
 const CompleteBillingSheet = ({
@@ -33,8 +32,8 @@ const CompleteBillingSheet = ({
 
   const [fileId, setFileId] = useState<number | undefined>(id ? id : undefined);
   const [name, setName] = useState('');
-  const [referral_date, setReferral_date] = useState('');
-  const [dob, setDob] = useState('');
+  const [referral_date, setReferral_date] = useState<string | null>(null);
+  const [dob, setDob] = useState<string | null>(null);
   const [referring_doctor, setReferring_doctor] = useState('');
   const [address, setAddress] = useState('');
   const [provider_number, setProvider_number] = useState('');
@@ -69,7 +68,7 @@ const CompleteBillingSheet = ({
       let newArray = [...dateServices];
       newArray[index] = {
         ...newArray[index],
-        date_of_service: val.date_of_service,
+        date_of_service: val.date_of_service || '',
         time_of_service: val.time_of_service,
         item_number: val.item_number,
       };
@@ -93,8 +92,8 @@ const CompleteBillingSheet = ({
   const handleSave = useCallback(() => {
     const form: UploadBillingForm = {
       name,
-      referral_date: ddmmyyyyToyyyymmdd(referral_date),
-      dob: ddmmyyyyToyyyymmdd(dob),
+      referral_date,
+      dob,
       referring_doctor,
       address,
       provider_number,
@@ -115,10 +114,15 @@ const CompleteBillingSheet = ({
       if (dt.date_of_service === 'Date Service' && dt.item_number === '') {
         newdateServices.splice(i, 1);
       }
+      if (newdateServices[i]?.date_of_service !== undefined)
+        newdateServices[i] = {
+          ...newdateServices[i],
+          date_of_service: newdateServices[i].date_of_service || '',
+        };
     });
-    console.log('first', {
-      patient: form,
+    mutation({
       data: newdateServices,
+      patient: form,
       old: false,
       file_id: fileId,
     });
@@ -134,13 +138,12 @@ const CompleteBillingSheet = ({
     health_fund_no,
     insurer_no,
     dateServices,
-    fileId
+    fileId,
   ]);
 
   useEffect(() => {
     if (isSuccess) navigation.navigate('BillingSheets');
   }, [isSuccess]);
-
   return (
     <>
       {Platform.OS === 'ios' && (
@@ -160,12 +163,12 @@ const CompleteBillingSheet = ({
           <Gap height={METRICS.gutter.s} />
           <Input
             withDate
-            value={referral_date}
+            value={referral_date || ''}
             onChangeText={setReferral_date}
             label="Referal Date"
           />
           <Gap height={METRICS.gutter.s} />
-          <Input withDate value={dob} onChangeText={setDob} label="DOB" />
+          <Input withDate value={dob || ''} onChangeText={setDob} label="DOB" />
           <Gap height={METRICS.gutter.s} />
           <Input
             value={referring_doctor}

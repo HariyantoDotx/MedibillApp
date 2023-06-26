@@ -127,21 +127,23 @@ interface DetailBillingSheetPatientInvoice {
   updated_at: string;
 }
 
+interface BillingDetail {
+  address: null | string;
+  dob: null | string;
+  health_fund_no: null | string;
+  insurer_no: null | string;
+  medicare_no: null | string;
+  name: string;
+  provider_number: null | string;
+  referral_date: null | string;
+  referral_period: string | null;
+  referring_doctor: null | string;
+  referring_doctor_id: null | string;
+}
+
 interface DetailBillingSheetPatientReferral {
   created_at: string;
-  details: {
-    address: null | string;
-    dob: null | string;
-    health_fund_no: null | string;
-    insurer_no: null | string;
-    medicare_no: null | string;
-    name: string;
-    provider_number: null | string;
-    referral_date: null | string;
-    referral_period: number;
-    referring_doctor: null | string;
-    referring_doctor_id: null | string;
-  };
+  details: BillingDetail;
   doctor_id: number;
   file_id: number;
   formatted_period: string;
@@ -175,4 +177,22 @@ export interface DetailBillingSheetResponse {
 
 export interface DetailParams {
   id: string;
+}
+
+export interface DetailPatientReferral {
+  data: {
+    created_at?: string;
+    details: BillingDetail;
+    doctor_id?: number;
+    file_id?: number;
+    formatted_period?: string;
+    id: number;
+    patient_name?: string;
+    period?: number;
+    provider_number?: string;
+    referral_date?: string;
+    referring_doctor?: string;
+    referring_doctor_id?: string;
+    updated_at?: string;
+  };
 }

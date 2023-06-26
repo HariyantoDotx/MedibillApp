@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Platform,
   ScrollView,
@@ -14,8 +14,8 @@ import {
   Input,
   PatientList,
 } from '../../components';
-import {useLoadingHandler} from '../../hooks';
-import {useGetPatientReferralQuery} from '../../store/api/apiRequest';
+import { useLoadingHandler } from '../../hooks';
+import { useGetPatientReferralQuery } from '../../store/api/apiRequest';
 import {
   COLORS,
   FONTS,

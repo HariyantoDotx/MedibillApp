@@ -7,6 +7,7 @@ import useErrorHandler from '../../hooks/useErrorHandler';
 import {
   useAppDispatch,
   useGetDetailBillingSheetQuery,
+  useLazyExportBillingToPdfQuery,
   useUpdateBillingMutation,
 } from '../../store';
 import {setAllert} from '../../store/reducer/allert';
@@ -16,8 +17,6 @@ import {
   METRICS,
   TImeService,
   UploadBillingForm,
-  ddmmyyyyToyyyymmdd,
-  yyyymmddToddmmyyyy,
 } from '../../utils';
 
 const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
@@ -29,7 +28,18 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
     isLoading,
     isError,
     error,
+    refetch,
   } = useGetDetailBillingSheetQuery({id});
+  const [
+    getPdf,
+    {
+      isSuccess: isGetPdfSuccess,
+      data: getPdfData,
+      isError: isGetPdfError,
+      error: getPdfError,
+      isLoading: isGetPdfLoading,
+    },
+  ] = useLazyExportBillingToPdfQuery();
   const [
     mutate,
     {
@@ -39,15 +49,19 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
       isLoading: isUpdateLoading,
     },
   ] = useUpdateBillingMutation();
-  useLoadingHandler({isLoading: isLoading || isUpdateLoading});
+  useLoadingHandler({
+    isLoading: isLoading || isUpdateLoading || isGetPdfLoading,
+  });
   useErrorHandler({
-    isError: isError || isUpdateError,
-    error: error || updateError,
+    isError: isError || isUpdateError || isGetPdfError,
+    error: error || updateError || getPdfError,
   });
 
+  const [alreadyDownload, setAlreadyDownload] = useState(false);
+
   const [name, setName] = useState('');
-  const [referral_date, setReferral_date] = useState('');
-  const [dob, setDob] = useState('');
+  const [referral_date, setReferral_date] = useState<string | null>(null);
+  const [dob, setDob] = useState<string | null>(null);
   const [referring_doctor, setReferring_doctor] = useState('');
   const [address, setAddress] = useState('');
   const [provider_number, setProvider_number] = useState('');
@@ -69,8 +83,8 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
 
   const form: UploadBillingForm = {
     name,
-    referral_date: ddmmyyyyToyyyymmdd(referral_date),
-    dob: ddmmyyyyToyyyymmdd(dob),
+    referral_date,
+    dob,
     referring_doctor,
     address,
     provider_number,
@@ -94,16 +108,21 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
         insurer_no,
       } = details;
       setName(patient_name || '');
-      setReferral_date(yyyymmddToddmmyyyy(referral_date || ''));
-      setDob(yyyymmddToddmmyyyy(dob || ''));
+      setReferral_date(referral_date || '');
+      setDob(referral_date || '');
       setReferring_doctor(referring_doctor || '');
       setAddress(address || '');
       setProvider_number(provider_number || '');
-      setReferral_period(referral_period.toString());
+      setReferral_period(referral_period || '');
       setMedicare_no(medicare_no || '');
       setHealth_fund_no(health_fund_no || '');
       setInsurer_no(insurer_no || '');
-      setDateServices(data.details as TImeService[]);
+      console.log('data.details', data.details)
+      const newdateServices: TImeService[] = [];
+      data.details.forEach((item, i) => {
+        newdateServices.push({...item, id: i});
+      });
+      setDateServices(newdateServices as TImeService[]);
     }
   }, [isSuccess, data]);
 
@@ -116,6 +135,7 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
           type: 'success',
         }),
       );
+      refetch();
       navigation.goBack();
     }
   }, [isUpdateSuccess]);
@@ -139,7 +159,7 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
         addAndroidDownloads: {
           description: 'downloading file...',
           notification: true,
-          mime: 'application/pdf',
+          mime: data.file.type,
           useDownloadManager: true,
         },
       };
@@ -149,15 +169,13 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
           dispatch(
             setAllert({
               visible: true,
-              message: 'pdf undefined',
+              message: 'download file success',
               type: 'success',
             }),
           );
         });
     }
   }, [data]);
-
-  console.log('data?.file.url', data?.file.url);
 
   const handleShow = useCallback(() => {
     if (data?.file.url === undefined) {
@@ -185,6 +203,7 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
 
   const onTimeServiceChange = useCallback(
     (val: TImeService) => {
+      console.log('val', val);
       const index = dateServices.findIndex(e => e.id === val.id);
 
       let newArray = [...dateServices];
@@ -211,6 +230,41 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
     [dateServices, setDateServices],
   );
 
+  const handleExportPdf = useCallback(() => {
+    setAlreadyDownload(false);
+    if (res?.data.id) getPdf({id: res?.data.id});
+  }, [res?.data.id]);
+
+  useEffect(() => {
+    if (isGetPdfSuccess && getPdfData) {
+      const {config, fs} = RNFetchBlob;
+      let RootDir =
+        Platform.OS === 'ios' ? fs.dirs.DocumentDir : fs.dirs.DownloadDir;
+      let options = {
+        fileCache: true,
+        path: RootDir + id,
+        addAndroidDownloads: {
+          description: 'downloading file...',
+          notification: true,
+          mime: 'application/pdf',
+          useDownloadManager: true,
+        },
+      };
+      config(options)
+        .fetch('GET', getPdfData?.data.replace(' ', '%20') || '')
+        .then(res => {
+          setAlreadyDownload(true);
+          dispatch(
+            setAllert({
+              visible: true,
+              message: 'pdf undefined',
+              type: 'success',
+            }),
+          );
+        });
+    }
+  }, [isGetPdfSuccess, getPdfData, id, alreadyDownload]);
+
   const handleUpdate = useCallback(() => {
     let newdateServices = [...dateServices];
     dateServices.map((dt, i) => {
@@ -223,6 +277,10 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
       if (dt.date_of_service === 'Date Service' && dt.item_number === '') {
         newdateServices.splice(i, 1);
       }
+      newdateServices[i] = {
+        ...newdateServices[i],
+        date_of_service: newdateServices[i].date_of_service || '',
+      };
     });
     if (data?.id)
       mutate({id: data?.id, payload: {patient: form, data: newdateServices}});
@@ -248,12 +306,12 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
           <Gap height={12} />
           <Input
             withDate
-            value={referral_date}
+            value={referral_date || ''}
             onChangeText={setReferral_date}
             label="Referal Date"
           />
           <Gap height={12} />
-          <Input withDate value={dob} onChangeText={setDob} label="DOB" />
+          <Input withDate value={dob || ''} onChangeText={setDob} label="DOB" />
           <Gap height={12} />
           <Input
             value={referring_doctor}
@@ -316,6 +374,7 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
       <Gap height={4} />
       <View style={styles.buttonContainer}>
         <Button size="small" title="Show FIle" onPress={handleShow} />
+        <Button size="small" title="Export Pdf" onPress={handleExportPdf} />
         <Button size="small" title="Download FIle" onPress={downloadFile} />
       </View>
       <Gap height={4} />

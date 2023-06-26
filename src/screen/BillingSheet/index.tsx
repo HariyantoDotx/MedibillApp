@@ -1,12 +1,20 @@
-import React, { useEffect } from 'react';
-import {Platform, ScrollView, StyleSheet, View} from 'react-native';
+import React, {useEffect} from 'react';
+import {
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {CardPatient, Gap, Header, Input} from '../../components';
 import {useInfinityBillingSheet} from '../../hooks';
 import {BillingSheetProps, COLORS, FONTS, METRICS} from '../../utils';
 
 const BillingSheet = ({navigation}: BillingSheetProps) => {
-  const {handleScroll, data, search, setSearch} = useInfinityBillingSheet();
-  
+  const {handleScroll, data, search, setSearch, isLoading, refect} =
+    useInfinityBillingSheet();
+
   return (
     <>
       {Platform.OS === 'ios' && (
@@ -15,10 +23,7 @@ const BillingSheet = ({navigation}: BillingSheetProps) => {
           backgroundColor={COLORS.greenSecondary}
         />
       )}
-      <Header
-        title="Billing Sheets"
-        desc="Only the billing sheets uploaded through the Medibill portal are displayed"
-      />
+      <Header title="Billing Sheets" />
       <Gap height={METRICS.gutter.s} />
       <View style={styles.page}>
         <Input
@@ -27,10 +32,17 @@ const BillingSheet = ({navigation}: BillingSheetProps) => {
           value={search}
           onChangeText={setSearch}
         />
+        <Gap height={METRICS.gutter.xs} />
+        <Text style={styles.allert}>
+          (Only billing sheets uploaded through medibill portal are displayed)
+        </Text>
         <Gap height={METRICS.gutter.s} />
         <ScrollView
           onScroll={handleScroll}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={isLoading} onRefresh={refect} />
+          }>
           <View style={styles.content}>
             {data?.length > 0 &&
               data?.map((dt, i) => {
@@ -68,5 +80,11 @@ const styles = StyleSheet.create({
   list: {
     marginLeft: METRICS.gutter.xxs,
     fontFamily: FONTS.primary[600],
+  },
+  allert: {
+    fontSize: METRICS.gutter.xs + 2,
+    fontFamily: FONTS.primary[500],
+    color: COLORS.red1,
+    textAlign: 'center',
   },
 });

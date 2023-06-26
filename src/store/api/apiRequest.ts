@@ -3,10 +3,11 @@ import {UpdatebillingPayload, UploadBillingPayload} from '../../utils';
 import {
   BillingResponse,
   DetailBillingSheetResponse,
+  DetailPatientReferral,
   GetProfileResponse,
   PatientReferralResponse,
   ReportResponse,
-} from '../../utils/interface';
+} from '../../utils';
 import {API} from './config';
 import {prepareHeaders} from './prepareHeaders';
 
@@ -15,9 +16,9 @@ export const apiRequest = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${API.url}/api`,
     prepareHeaders: prepareHeaders,
-    timeout: 10000,
+    timeout: 60000,
   }),
-  tagTypes: ['USERS', 'BILLING', 'REPORT'],
+  tagTypes: ['USERS', 'BILLING', 'REPORT', 'REFERRAL', 'EXPORT_PDF'],
   endpoints: builder => ({
     getProfile: builder.query<GetProfileResponse, undefined>({
       query: () => '/v1/user',
@@ -40,7 +41,7 @@ export const apiRequest = createApi({
     }),
     getPatientReferral: builder.query<PatientReferralResponse, undefined>({
       query: () => `/v1/patient-referral`,
-      providesTags: [{type: 'REPORT', id: 'LIST'}],
+      providesTags: [{type: 'REFERRAL', id: 'LIST'}],
     }),
     uploadBilling: builder.mutation<any, UploadBillingPayload>({
       query: payload => ({
@@ -56,9 +57,19 @@ export const apiRequest = createApi({
         body: payload,
       }),
     }),
+    getDetailPatientReferral: builder.query<
+      DetailPatientReferral,
+      {id: number}
+    >({
+      query: ({id}) => `/v1/patient-referral/${id}`,
+      providesTags: [{type: 'REFERRAL', id: 'ITEMS'}],
+    }),
+    exportBillingToPdf: builder.query<{data: string}, {id: number}>({
+      query: ({id}) => `/v1/billing-sheet/manual-export/${id}`,
+      providesTags: [{type: 'EXPORT_PDF', id: 'ITEMS'}],
+    }),
   }),
 });
-
 
 export const {
   useGetProfileQuery,
@@ -67,5 +78,8 @@ export const {
   useGetPatientReferralQuery,
   useGetDetailBillingSheetQuery,
   useUploadBillingMutation,
-  useUpdateBillingMutation
+  useUpdateBillingMutation,
+  useGetDetailPatientReferralQuery,
+  useLazyExportBillingToPdfQuery,
+  useExportBillingToPdfQuery
 } = apiRequest;

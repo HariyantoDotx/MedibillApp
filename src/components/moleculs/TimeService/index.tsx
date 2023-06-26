@@ -13,8 +13,6 @@ import {
 } from '../../../utils';
 import {Button, Gap, Input} from '../../atoms';
 
-
-
 interface TimeServiceProps {
   onDeletePress: () => void;
   data: TImeService;
@@ -30,7 +28,7 @@ const TimeService = ({onDeletePress, data, value}: TimeServiceProps) => {
     const {nativeEvent, type} = val;
     const {timestamp} = nativeEvent;
 
-    if (type === 'set') {
+    if (type === 'set' && timestamp) {
       if (mode === 'date') {
         const date = timestampToDate(timestamp);
         const newData = {...data, date_of_service: date};
@@ -67,13 +65,13 @@ const TimeService = ({onDeletePress, data, value}: TimeServiceProps) => {
         </TouchableOpacity>
         <Button
           type="fakeInput"
-          title={data.date_of_service}
+          title={data.date_of_service || ''}
           onPress={onDatePress}
         />
         <Gap width={METRICS.gutter.s} />
         <Button
           type="fakeInput"
-          title={data.time_of_service}
+          title={data.time_of_service || ''}
           onPress={onTimePress}
         />
         <Gap width={METRICS.gutter.s} />

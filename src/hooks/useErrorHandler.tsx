@@ -12,6 +12,7 @@ const useErrorHandler = ({isError, error}: UseErrorhandler) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     if (isError) {
+      console.log('error', error)
       dispatch(
         setAllert({
           type: 'error',

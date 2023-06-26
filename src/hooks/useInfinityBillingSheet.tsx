@@ -3,8 +3,10 @@ import {NativeScrollEvent, NativeSyntheticEvent} from 'react-native';
 import {useLazyGetBillingSheetQuery} from '../store';
 import {BillingData} from '../utils';
 import useLoadingHandler from './useLoadingHandler';
+import {useNavigation} from '@react-navigation/native';
 
 const useInfinityBillingSheet = () => {
+  const navigation = useNavigation();
   const shouldReset = useRef(true);
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<Array<BillingData>>([]);
@@ -14,8 +16,11 @@ const useInfinityBillingSheet = () => {
   useLoadingHandler({isLoading: result.isLoading});
 
   useEffect(() => {
-    trigger({page: 1});
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      trigger({page: 1});
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     if (!result.isSuccess) return;
@@ -73,6 +78,11 @@ const useInfinityBillingSheet = () => {
     handleScroll,
     search,
     setSearch,
+    isLoading: result.isLoading,
+    refect: () => {
+      shouldReset.current =  true  
+      trigger({page: 1})
+    },
   };
 };
 export default useInfinityBillingSheet;

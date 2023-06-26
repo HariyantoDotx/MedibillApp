@@ -51,7 +51,6 @@ const PlusButton = ({setFileId}: PlusButtonProps) => {
       .catch(err => {
         handleLoading(false);
         setActive(false);
-        console.log('err', err);
       });
   }, []);
 

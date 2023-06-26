@@ -105,15 +105,15 @@ export type DetaiBillingSheetProps = {
 
 export interface TImeService {
   id: number;
-  date_of_service: string;
-  time_of_service: string;
+  date_of_service: string | null;
+  time_of_service: string | null;
   item_number: number | string;
 }
 
 export interface UploadBillingForm {
   name: string;
-  referral_date: string;
-  dob: string;
+  referral_date: string | null;
+  dob: string | null;
   referring_doctor: string;
   address: string;
   provider_number: string;
