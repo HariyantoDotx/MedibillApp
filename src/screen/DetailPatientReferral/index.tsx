@@ -103,7 +103,7 @@ const DetailPatientReferral = ({
           <Gap height={METRICS.gutter.s} />
           <ListWithLabelAndLine
             name={responseData?.referral_date || ''}
-            label="Referal Date"
+            label="Referral Date"
           />
           <Gap height={METRICS.gutter.s} />
           <ListWithLabelAndLine
@@ -113,7 +113,7 @@ const DetailPatientReferral = ({
           <Gap height={METRICS.gutter.s} />
           <ListWithLabelAndLine
             name={responseData?.referring_doctor || ''}
-            label="Refering Doctor"
+            label="Referring Doctor"
           />
           <Gap height={METRICS.gutter.s} />
           <ListWithLabelAndLine
@@ -128,7 +128,7 @@ const DetailPatientReferral = ({
           <Gap height={METRICS.gutter.s} />
           <ListWithLabelAndLine
             name={responseData?.details.referral_period || ''}
-            label="referral Period (months)"
+            label="Referral Period (months)"
           />
 
           <Gap height={METRICS.gutter.s} />

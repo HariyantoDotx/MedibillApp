@@ -1,6 +1,6 @@
-import React, {memo} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {COLORS, FONTS, METRICS} from '../../../utils';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { COLORS, FONTS, METRICS } from '../../../utils';
 
 interface CardPatientProps {
   data: {
@@ -20,7 +20,7 @@ const CardPatient = ({data, onPress}: CardPatientProps) => {
       <Text style={styles.sub}>Reference</Text>
       <Text style={styles.name}>{data.reference_number}</Text>
       <View style={styles.line} />
-      <Text style={styles.sub}>submission</Text>
+      <Text style={styles.sub}>Submission</Text>
       <Text style={styles.name}>{data.date_of_submissions}</Text>
     </TouchableOpacity>
   );

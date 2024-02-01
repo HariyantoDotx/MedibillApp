@@ -32,6 +32,7 @@ const CompleteBillingSheet = ({
 
   const [fileId, setFileId] = useState<number | undefined>(id ? id : undefined);
   const [name, setName] = useState('');
+  const [hospital, setHospital] = useState('')
   const [referral_date, setReferral_date] = useState<string | null>(null);
   const [dob, setDob] = useState<string | null>(null);
   const [referring_doctor, setReferring_doctor] = useState('');
@@ -92,6 +93,7 @@ const CompleteBillingSheet = ({
   const handleSave = useCallback(() => {
     const form: UploadBillingForm = {
       name,
+      hospital,
       referral_date,
       dob,
       referring_doctor,
@@ -161,11 +163,13 @@ const CompleteBillingSheet = ({
         <ScrollView showsVerticalScrollIndicator={false}>
           <Input value={name} onChangeText={setName} label="Name" />
           <Gap height={METRICS.gutter.s} />
+          <Input value={hospital} onChangeText={setHospital} label="Hospital" />
+          <Gap height={METRICS.gutter.s} />
           <Input
             withDate
             value={referral_date || ''}
             onChangeText={setReferral_date}
-            label="Referal Date"
+            label="Referral Date"
           />
           <Gap height={METRICS.gutter.s} />
           <Input withDate value={dob || ''} onChangeText={setDob} label="DOB" />
@@ -173,7 +177,7 @@ const CompleteBillingSheet = ({
           <Input
             value={referring_doctor}
             onChangeText={setReferring_doctor}
-            label="Refering Doctor"
+            label="Referring Doctor"
           />
           <Gap height={METRICS.gutter.s} />
           <Input value={address} onChangeText={setAddress} label="Address" />
@@ -187,7 +191,7 @@ const CompleteBillingSheet = ({
           <Input
             value={referral_period}
             onChangeText={setReferral_period}
-            label="referral Period (months)"
+            label="Referral Period (months)"
           />
           <Gap height={METRICS.gutter.s} />
           <Input

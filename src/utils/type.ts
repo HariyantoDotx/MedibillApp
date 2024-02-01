@@ -121,6 +121,7 @@ export interface UploadBillingForm {
   medicare_no: string;
   health_fund_no: string;
   insurer_no: string;
+  hospital : string
 }
 
 export interface UploadBillingPayload {

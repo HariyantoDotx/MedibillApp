@@ -60,6 +60,7 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
   const [alreadyDownload, setAlreadyDownload] = useState(false);
 
   const [name, setName] = useState('');
+  const [hospital, setHospital] = useState('');
   const [referral_date, setReferral_date] = useState<string | null>(null);
   const [dob, setDob] = useState<string | null>(null);
   const [referring_doctor, setReferring_doctor] = useState('');
@@ -117,7 +118,8 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
       setMedicare_no(medicare_no || '');
       setHealth_fund_no(health_fund_no || '');
       setInsurer_no(insurer_no || '');
-      console.log('data.details', data.details)
+      setHospital(data.hospital || '');
+      console.log('data.details', data.details);
       const newdateServices: TImeService[] = [];
       data.details.forEach((item, i) => {
         newdateServices.push({...item, id: i});
@@ -303,12 +305,23 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <Gap height={8} />
           <Input value={name} onChangeText={setName} label="Patient Name" />
+          {hospital !== '' ? (
+            <>
+              <Gap height={12} />
+              <Input
+                value={hospital}
+                onChangeText={setName}
+                label="Hospital"
+              />
+            </>
+          ) : null}
+
           <Gap height={12} />
           <Input
             withDate
             value={referral_date || ''}
             onChangeText={setReferral_date}
-            label="Referal Date"
+            label="Referral Date"
           />
           <Gap height={12} />
           <Input withDate value={dob || ''} onChangeText={setDob} label="DOB" />

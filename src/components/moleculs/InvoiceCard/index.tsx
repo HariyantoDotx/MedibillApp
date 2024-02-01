@@ -17,7 +17,6 @@ const InvoiceCard = ({data, onPress}: InvoiceCardProps) => {
       <Text style={styles.value}>{data.doctor_name}</Text>
       <View style={styles.line} />
       <Gap height={2} />
-      {/* Date Of Submission */}
       <Text style={styles.label}>Month</Text>
       <Gap height={2} />
       <Text style={styles.value}>{mounth(data.month)}</Text>

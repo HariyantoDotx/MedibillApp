@@ -172,7 +172,9 @@ export interface DetailBillingSheetResponse {
     reference_number: string;
     type: string;
     updated_at: string;
+    hospital: string | null
   };
+
 }
 
 export interface DetailParams {
@@ -194,5 +196,6 @@ export interface DetailPatientReferral {
     referring_doctor?: string;
     referring_doctor_id?: string;
     updated_at?: string;
+
   };
 }
