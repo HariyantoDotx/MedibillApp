@@ -17,6 +17,7 @@ import {
   METRICS,
   TImeService,
   UploadBillingForm,
+  replaceVal,
 } from '../../utils';
 
 const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
@@ -71,6 +72,8 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
   const [health_fund_no, setHealth_fund_no] = useState('');
   const [insurer_no, setInsurer_no] = useState('');
 
+  console.log('referral_date =>', referral_date);
+
   const [dateServices, setDateServices] = useState<TImeService[]>([
     {
       id: 9999,
@@ -93,11 +96,13 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
     medicare_no,
     health_fund_no,
     insurer_no,
+    hospital,
   };
 
   useEffect(() => {
     if (isSuccess && data) {
       const {patient_name, referral_date, details} = data.patient_referral;
+
       const {
         dob,
         referring_doctor,
@@ -108,9 +113,16 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
         health_fund_no,
         insurer_no,
       } = details;
+
+      const referralDate = replaceVal({
+        value: referral_date,
+        from: '-',
+        to: '/',
+      });
+      const newDob = replaceVal({value: dob, from: '-', to: '/'});
       setName(patient_name || '');
-      setReferral_date(referral_date || '');
-      setDob(referral_date || '');
+      setReferral_date(referralDate || null);
+      setDob(newDob || null);
       setReferring_doctor(referring_doctor || '');
       setAddress(address || '');
       setProvider_number(provider_number || '');
@@ -305,17 +317,8 @@ const DetailBillingSheet = ({navigation, route}: DetaiBillingSheetProps) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <Gap height={8} />
           <Input value={name} onChangeText={setName} label="Patient Name" />
-          {hospital !== '' ? (
-            <>
-              <Gap height={12} />
-              <Input
-                value={hospital}
-                onChangeText={setName}
-                label="Hospital"
-              />
-            </>
-          ) : null}
-
+          <Gap height={12} />
+          <Input value={hospital} onChangeText={setName} label="Hospital" />
           <Gap height={12} />
           <Input
             withDate
